@@ -226,14 +226,20 @@
   </div>
 
   <p class="erro" id="erroMsg">Falta responder a uma ou mais perguntas obrigatórias acima.</p>
-  <button type="submit">Enviar resposta</button>
+  <button type="submit" id="btnEnviar">Enviar resposta</button>
   <p class="aviso">Resposta anónima. Não recolhemos o teu nome nem contacto.</p>
 </form>
+
+<div class="card" id="obrigadoBox" hidden style="text-align:center;">
+  <p class="q" style="margin-bottom:6px;">Obrigado pelo feedback.</p>
+  <p class="hint" style="margin:0;">A tua resposta foi registada com sucesso.</p>
+</div>
 
 <footer>CAMY | camy.co.mz</footer>
 
 <script>
   (function(){
+    var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyqfit5cwZZn4vb72pHCAmhYrvJgDKOVLI8syNeDJ8boufQvL_dnXuTVf3iXrSfg9_S/exec';
     var params = new URLSearchParams(window.location.search);
     var empresaParam = params.get('empresa') || '';
     var tipoParam = params.get('tipo') || '';
@@ -325,6 +331,24 @@
       document.getElementById('hPreenchidoEm').value = carimbo;
       var idEvento = (empresaInput.value || 'evento').replace(/\s+/g,'_') + '_' + dataEventoInput.value;
       document.getElementById('hIdEvento').value = idEvento;
+
+      e.preventDefault();
+      var form = document.getElementById('formImpacto');
+      var btn = document.getElementById('btnEnviar');
+      var dados = new FormData(form);
+      btn.disabled = true;
+      btn.textContent = 'A enviar...';
+
+      var envioSheet = fetch(APPS_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: dados })
+        .catch(function(){});
+      var envioEmail = fetch(form.action, { method: 'POST', mode: 'no-cors', body: dados })
+        .catch(function(){});
+
+      Promise.allSettled([envioSheet, envioEmail]).finally(function(){
+        form.hidden = true;
+        document.getElementById('obrigadoBox').hidden = false;
+        document.getElementById('obrigadoBox').scrollIntoView({behavior:'smooth', block:'center'});
+      });
     });
   })();
 </script>
