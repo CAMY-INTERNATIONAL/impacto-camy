@@ -339,7 +339,8 @@
       btn.disabled = true;
       btn.textContent = 'A enviar...';
 
-      var envioSheet = fetch(APPS_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: dados })
+      var qs = new URLSearchParams(dados).toString();
+      var envioSheet = fetch(APPS_SCRIPT_URL + '?' + qs, { method: 'GET', mode: 'no-cors' })
         .catch(function(){});
       var envioEmail = fetch(form.action, { method: 'POST', mode: 'no-cors', body: dados })
         .catch(function(){});
